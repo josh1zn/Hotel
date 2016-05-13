@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[Room]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY,
+	[Number] INT NOT NULL, 
+    [Type] VARCHAR(50) NOT NULL,
+    [Price] DECIMAL(18, 2) NOT NULL,
+)

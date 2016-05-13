@@ -1,0 +1,93 @@
+﻿@model IEnumerable<DataTransferObjects.BookingDto>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@section Styles{
+    @Styles.Render("~/Content/css/dateTimePicker")
+}
+
+<h2>Bookings</h2>
+
+@using (Html.BeginForm("Index", "Booking"))
+{
+    <div class="form-group">
+        <div class="input-group col-md-8">
+            <span class="input-group-addon">Date</span>
+            @Html.TextBox("Date", DateTime.Now.ToString("dd MMM yyyy"), new { @class = "form-control" })
+            <span class="input-group-addon">Customer</span>
+            @Html.Hidden("CustomerId")
+            @Html.TextBox("Customer", null, new { placeholder = "Optional", @class = "form-control", autocomplete = "off" })
+            <div class="input-group-btn">
+                <input type="submit" value="Filter" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.CustomerName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RoomNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RoomType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.StartDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EndDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TotalCost)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CustomerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoomNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoomType)
+            </td>
+            <td>
+                @item.StartDate.ToString("dd MMMM yyyy hh:mm tt")
+            </td>
+            <td>
+                @item.EndDate.ToString("dd MMM yyyy HH:mm tt"))
+            </td>
+            <td>
+                R @Html.DisplayFor(modelItem => item.TotalCost)
+            </td>
+            <td>
+                @Html.ActionLink("Cancel Booking", "Delete", new { id = item.Id }, new { @class = "btn btn-xs btn-primary" })
+            </td>
+        </tr>
+    }
+
+</table>
+
+@section Scripts{
+    @Scripts.Render("~/Bundles/dateTimePicker")
+    <script src="~/Scripts/bootstrap3-typeahead.min.js"></script>
+    <script src="~/Scripts/TypeAhead.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#Date").datetimepicker();
+            TypeAhead.Customers("Customer", "CustomerId");
+            $("#CustomerId").val("");
+        });
+
+    </script>
+}

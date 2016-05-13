@@ -1,0 +1,4 @@
+﻿CREATE PROCEDURE [dbo].[spGetAllRooms]
+AS
+	SELECT * FROM Room
+RETURN 0

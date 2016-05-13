@@ -1,0 +1,117 @@
+﻿@model DataTransferObjects.CustomerDto
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Customer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Surname)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Surname)
+        </dd>
+
+    </dl>
+</div>
+<p class="pull-right">
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<hr/>
+<h4>Customer Bookings</h4>
+
+<div class="form-group">
+    <div class="input-group col-md-6">
+        <span class="input-group-addon">Month</span>
+        <select class="form-control" id="Month">
+            <option value="0" disabled selected>Optional</option>
+            @for (int i = 1; i < 13; i++)
+            {
+                <option value="@i">
+                    @DateTime.ParseExact("2016-" + i + "-19", "yyyy-M-d", System.Globalization.CultureInfo.CurrentCulture).ToString("MMMM")
+                </option>
+            }
+        </select>
+        <span class="input-group-addon">Year</span>
+        <input id="Year" type="number" placeholder="Optional" class="form-control" />
+        @Html.Hidden("CustomerId", Model.Id)
+        <div class="input-group-btn">
+            <input id="btnGetBookings" type="button" value="Filter" class="btn btn-primary" onclick="GetBookings();"/>
+        </div>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Customer Name
+            </th>
+            <th>
+                Room Number
+            </th>
+            <th>
+                Room Type
+            </th>
+            <th>
+                Start Date
+            </th>
+            <th>
+                End Date
+            </th>
+            <th>
+                Total Cost
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="tblBookings">
+
+    </tbody>
+</table>
+
+@section Scripts{
+    <script src="~/Scripts/moment.min.js"></script>
+    <script type="text/javascript">
+        function GetBookings() {
+            var customerId = $("#CustomerId").val();
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+
+            $.getJSON("../../Booking/GetBookings", { customerId: customerId, month: month, year: year }, function (data) {
+                $("#tblBookings").html("");
+                $.each(data, function (i, o) {
+                    $("#tblBookings").append("<tr>" +
+                        "<td>" + o.CustomerName                                         + "</td>" +
+                        "<td>" + o.RoomNumber                                           + "</td>" +
+                        "<td>" + o.RoomType                                             + "</td>" +
+                        "<td>" + moment(o.StartDate).utc().format("D MMMM YYYY hh:mm A")      + "</td>" +
+                        "<td>" + moment(o.EndDate).utc().format("D MMMM YYYY hh:mm A")        + "</td>" +
+                        "<td>" + o.TotalCost                                            + "</td>" +
+                        "<td>" + (moment(o.StartDate).diff(moment(), 'hours') > 1 ? "<a href='../../Booking/Delete/" + o.Id + "' class='btn btn-xs btn-primary'>Cancel Booking</a>" : "") + "</td>" +
+                        + "</tr>");
+                });
+            })
+        }
+
+        $(document).ready(function () {
+            GetBookings();
+        });
+    </script>
+}
+

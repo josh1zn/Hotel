@@ -1,0 +1,112 @@
+﻿@model IEnumerable<DataTransferObjects.RoomDto>
+
+@{
+    ViewBag.Title = "Availability";
+}
+
+@section Styles{
+    @Styles.Render("~/Content/css/dateTimePicker")    
+}
+
+<h2>Room Availability</h2>
+
+@using (Html.BeginForm("Availability", "Room", FormMethod.Get))
+{
+    <div class="form-group col-md-7">
+        <div class="input-group">
+            <span class="input-group-addon">From</span>
+            <input id="startDate" name="startDate" type="text" class="form-control" />
+            <span class="input-group-addon">To</span>
+            <input id="endDate" name="endDate" type="text" class="form-control" />
+            <div class="input-group-btn">
+                <input type="submit" value="Check Availability" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Number)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Type)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th></th>
+    </tr>
+
+    @if (Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    <a href="~/Booking/Create" class="btn btn-success" onclick="loadBookingPage(@item.Id)" >Book</a>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="4" style="background-color:burlywood">
+                <b>No Rooms Available. Please Try Changing the Dates.</b>
+            </td>
+        </tr>
+    }
+
+</table>
+
+@section Scripts{
+    @Scripts.Render("~/Bundles/dateTimePicker")
+
+    <script type="text/javascript">
+        $(function () {
+            $("#startDate").datetimepicker({
+                minDate : 'now'
+            });
+
+            $("#endDate").datetimepicker({
+                useCurrent: false,
+                minDate : 'now'
+            });
+
+            $("#startDate").on("dp.change", function (e) {
+                $('#endDate').data("DateTimePicker").minDate(e.date);
+                $("#endDate").val($("#startDate").val());
+            });
+            $("#endDate").on("dp.change", function (e) {
+                $('#startDate').data("DateTimePicker").maxDate(e.date);
+            });
+        });
+
+        function loadBookingPage(roomId) {
+            var bookingData = {
+                RoomId      : roomId,
+                StartDate   : $('#startDate').val(),
+                EndDate     : $('#endDate').val(),
+                CustomerId  : 0
+            };
+
+            sessionStorage.setItem("BookingData", JSON.stringify(bookingData));
+        }
+
+        $(document).ready(function () {
+            $("#startDate").val("@ViewBag.StartDate");
+            $("#endDate").val("@ViewBag.EndDate");
+        });
+    </script>
+}

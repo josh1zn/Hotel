@@ -1,0 +1,100 @@
+﻿@model DataTransferObjects.CustomerDto
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Confirm Booking</h2>
+
+<form action="~/Booking/Create" method="post" class="form-horizontal">
+    <div class="form-group">
+        <label class="col-md-2 control-label text-info">Customer Name</label>
+        <div class="col-md-10">
+            <div class="input-group col-md-4">
+                <input id="txtCustomerName" type="text" class="form-control" value="@Model.Name @Model.Surname" autocomplete="off" />
+                <div class="input-group-btn">
+                    <a class="btn btn-primary" href="~/Customer/Create?goToCreateBooking=true"><span class="glyphicon glyphicon-plus-sign"></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-2 control-label text-info">Room</label>
+        <div class="col-md-10">
+            <label id="lblRoomInfo" class="control-label"></label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-2 control-label text-info">Check In</label>
+        <div class="col-md-10">
+            <label id="lblCheckInDate" class="control-label"></label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-2 control-label text-info">Check Out</label>
+        <div class="col-md-10">
+            <label id="lblCheckOutDate" class="control-label"></label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-2 control-label text-info">Total Cost</label>
+        <div class="col-md-10">
+            <label id="lblTotalCost" class="control-label"></label>
+        </div>
+    </div>
+
+    <input type="hidden" id="CustomerId" name="CustomerId" value="@Model.Id" />
+    <input type="hidden" id="RoomId" name="RoomId" />
+    <input type="hidden" id="StartDate" name="StartDate" />
+    <input type="hidden" id="EndDate" name="EndDate" />
+    <input type="hidden" id="TotalCost" name="TotalCost" />
+    <input type="submit" class="btn btn-primary col-md-offset-2" value="Confirm" />
+</form>
+
+@section Scripts{
+    <script src="~/Scripts/moment.min.js"></script>
+    <script src="~/Scripts/bootstrap3-typeahead.min.js"></script>
+    <script src="~/Scripts/TypeAhead.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadFormData();
+            TypeAhead.Customers("txtCustomerName", "CustomerId");
+        });
+
+        function loadFormData() {
+            var booking = JSON.parse(sessionStorage.getItem("BookingData"));
+            $("#RoomId").val(booking.RoomId);
+            $("#StartDate").val(booking.StartDate);
+            $("#EndDate").val(booking.EndDate);
+            $("#lblCheckInDate").html(moment(booking.StartDate).format("DD MMMM YYYY hh:mm A"));
+            $("#lblCheckOutDate").html(moment(booking.EndDate).format("DD MMMM YYYY hh:mm A"));
+
+            var days = getDays(booking.StartDate, booking.EndDate);
+            getRoomById(booking.RoomId, days);
+        }
+
+        function getRoomById(roomId, days) {
+            $.getJSON("../Room/GetById", { id: roomId }, function (data) {
+                populateRoomData(data, days);
+            });
+        }
+
+        function populateRoomData(data, days) {
+            var totalCost = Math.round((parseFloat(data.Price) * days), 2);
+            $("#TotalCost").val(totalCost);
+            $("#lblTotalCost").html("R" + totalCost);
+
+            $("#lblRoomInfo").html(data.Number + " " + data.Type)
+        }
+
+        function getDays(startDate, endDate) {
+            var hours = moment(endDate).diff(moment(startDate), "hours");
+            var days = hours / 24.00
+            return Math.ceil(days);
+        }
+    </script>
+}
